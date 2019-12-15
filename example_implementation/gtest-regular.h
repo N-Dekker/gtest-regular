@@ -29,7 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 //
-// This header file defines the macro GTEST_EXPECT_REGULAR.
+// This header file defines the macro's EXPECT_REGULAR(example_value1,
+// example_value2) and ASSERT_REGULAR(example_value1, example_value2).
 
 #ifndef GTEST_INCLUDE_GTEST_REGULAR_H_
 #define GTEST_INCLUDE_GTEST_REGULAR_H_
@@ -58,9 +59,9 @@ class RegularTypeChecker {
    public:
     Example(const T& value, const char* const expression)
         : value_(value),
-          valueAsString_(::testing::PrintToString(value)),
+          value_as_string_(::testing::PrintToString(value)),
           expression_(expression) {
-      // Note: the string representation of the value (valueAsString_) is
+      // Note: the string representation of the value (value_as_string_) is
       // generated at construction time, in order to be ahead of any possibly
       // changes of value_ during the test.
     }
@@ -71,15 +72,15 @@ class RegularTypeChecker {
     std::string ToString() const {
       std::string result(expression_);
 
-      if (valueAsString_ != expression_) {
-        result.append("\n    Which is: ").append(valueAsString_);
+      if (value_as_string_ != expression_) {
+        result.append("\n    Which is: ").append(value_as_string_);
       }
       return result;
     }
 
    private:
     const T& value_;
-    const std::string valueAsString_;
+    const std::string value_as_string_;
     const char* const expression_;
   };
 

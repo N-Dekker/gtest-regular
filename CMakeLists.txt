@@ -43,8 +43,8 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 add_executable(${PROJECT_NAME}
   example_implementation/gtest-regular.h
-  expect_regular_test.cpp
-  main.cpp
+  expect_regular_test.cc
+  main.cc
 )
 target_link_libraries(${PROJECT_NAME} gtest)
 

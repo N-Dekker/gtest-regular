@@ -406,3 +406,42 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
   const IrregularType example_value2{2};
   EXPECT_REGULAR(example_value1, example_value2);
 }
+
+GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
+  class IrregularType {
+   public:
+    IrregularType() = default;
+    IrregularType(const IrregularType&) = default;
+    IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(IrregularType&&) = default;
+    ~IrregularType() = default;
+    explicit IrregularType(int& arg) : data_{&arg} {}
+
+    IrregularType& operator=(const IrregularType& arg) noexcept {
+      if ((data_ == nullptr) || (arg.data_ == nullptr)) {
+        data_ = arg.data_;
+      } else {
+        // Potential bug in user code (or irregularity): copy-assignment does a
+        // deep copy, while the copy-constructor does a shallow copy.
+        *data_ = *arg.data_;
+      }
+      return *this;
+    }
+
+    bool operator==(const IrregularType& arg) const {
+      return (data_ == arg.data_) ||
+             ((data_ != nullptr) && (arg.data_ != nullptr) &&
+              (*data_ == *arg.data_));
+    }
+    bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
+
+   private:
+    int* data_{nullptr};
+  };
+
+  int i1{1};
+  int i2{2};
+  const IrregularType example_value1(i1);
+  const IrregularType example_value2(i2);
+  EXPECT_REGULAR(example_value1, example_value2);
+}

@@ -247,7 +247,7 @@ class RegularTypeChecker {
 
   template <unsigned example_index>
   bool CheckCopyValue() const {
-    const T& source = GetExample<example_index>().GetValue();
+    const T& source = GetExampleValue<example_index>();
 
     // Workaround for GCC warning: variable set but not used
     // [-Werror=unused-but-set-variable]
@@ -261,7 +261,7 @@ class RegularTypeChecker {
 
       if (source == T()) {
         message_ +=
-            "Assigning a new value to a copy-constructed object should not "
+            "Assigning T() to a copy-constructed object should not "
             "affect the source of the copy-construction.";
         return false;
       }
@@ -273,11 +273,25 @@ class RegularTypeChecker {
 
       if (source == T()) {
         message_ +=
-            "Assigning a new value to a copy-assigned-to object should not "
+            "Assigning T() to a copy-assigned-to object should not "
             "affect the source of the previous assignment.";
         return false;
       }
     }
+    T target = source;
+    DoNotUse(target);
+
+    const T& other_source = GetExampleValue<1 - example_index>();
+    target = other_source;
+    DoNotUse(target);
+
+    if (source == other_source) {
+      message_ +=
+          "Assigning a new value to a copy-constructed-to object should not "
+          "affect the source of the copy-construction.";
+      return false;
+    }
+
     return true;
   }
 

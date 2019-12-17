@@ -157,9 +157,15 @@ class RegularTypeChecker {
   template <unsigned example_index>
   bool CheckEqualToSelf() const {
     const Example& example = GetExample<example_index>();
-    const T& value = example.GetValue();
-    if (value == value) {
-      if (!(value != value)) {
+
+    // `if (value == value)` might cause a compile warning ("self-comparison
+    // always evaluates to true [-Wtautological-compare]"), so instead,
+    // use two different references to the same object.
+    const T& left_operand = example.GetValue();
+    const T& right_operand = example.GetValue();
+
+    if (left_operand == right_operand) {
+      if (!(left_operand != right_operand)) {
         return true;
       }
       message_.append("Object should not compare unequal to itself!");

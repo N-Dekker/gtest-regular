@@ -349,12 +349,20 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     // while the defaulted copy-constructor does a shallow copy.
 
     IrregularType& operator=(const IrregularType& arg) {
-      *data_ = *arg.data_;
+      if ((data_ == nullptr) || (arg.data_ == nullptr)) {
+        data_ = arg.data_;
+      } else {
+        *data_ = *arg.data_;
+      }
       return *this;
     }
 
     IrregularType& operator=(IrregularType&& arg) noexcept {
-      *data_ = *arg.data_;
+      if ((data_ == nullptr) || (arg.data_ == nullptr)) {
+        data_ = arg.data_;
+      } else {
+        *data_ = *arg.data_;
+      }
       return *this;
     }
 
@@ -417,7 +425,7 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
     ~IrregularType() = default;
     explicit IrregularType(int& arg) : data_{&arg} {}
 
-    IrregularType& operator=(const IrregularType& arg) noexcept {
+    IrregularType& operator=(const IrregularType& arg) {
       if ((data_ == nullptr) || (arg.data_ == nullptr)) {
         data_ = arg.data_;
       } else {
@@ -443,5 +451,47 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
   int i2{2};
   const IrregularType example_value1(i1);
   const IrregularType example_value2(i2);
+  EXPECT_REGULAR(example_value1, example_value2);
+}
+
+GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
+  class IrregularType {
+   public:
+    IrregularType() = default;
+    IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(IrregularType&&) = default;
+    ~IrregularType() = default;
+    explicit IrregularType(const int arg) : data_{new int(arg)} {}
+
+    IrregularType(const IrregularType& arg)
+        : data_((arg.data_ == nullptr) ? nullptr : new int(*arg.data_)) {}
+
+    IrregularType& operator=(const IrregularType& arg) {
+      if (arg.data_ == nullptr) {
+        data_.reset();
+      } else {
+        if (data_ != nullptr) {
+          // Potential bug in user code (or irregularity): copy-assignment
+          // does not do its job properly when the target (this) was
+          // previously moved-from (data_ == nullptr).
+          *data_ = *arg.data_;
+        }
+      }
+      return *this;
+    }
+
+    bool operator==(const IrregularType& arg) const {
+      return (data_ == arg.data_) ||
+             ((data_ != nullptr) && (arg.data_ != nullptr) &&
+              (*data_ == *arg.data_));
+    }
+    bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
+
+   private:
+    std::unique_ptr<int> data_{new int()};
+  };
+
+  const IrregularType example_value1(1);
+  const IrregularType example_value2(2);
   EXPECT_REGULAR(example_value1, example_value2);
 }

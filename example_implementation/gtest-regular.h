@@ -129,7 +129,9 @@ class RegularTypeChecker {
       using namespace ::testing;
 
       message_.append(short_message)
-          .append("\n    Failed for: ")
+          .append("\n    Actual value: ")
+          .append(::testing::PrintToString(value))
+          .append("\n    Compares unequal to: ")
           .append(example.ToString());
       return false;
     }
@@ -210,9 +212,18 @@ class RegularTypeChecker {
             "original.")) {
       T non_const_lvalue = example_value;
       const T moved_value = std::move(non_const_lvalue);
-      return CheckEqualToExample<example_index>(
-          moved_value,
-          "A move-constructed object must have a value equal to the original.");
+      if (CheckEqualToExample<example_index>(
+              moved_value,
+              "A move-constructed object must have a value equal to the "
+              "original.")) {
+        non_const_lvalue = GetExampleValue<1 - example_index>();
+
+        return CheckEqualToExample<1 - example_index>(
+            non_const_lvalue,
+            "The target of a copy-assignment must get a value equal to the "
+            "source, even when the target object was previously moved-from (as "
+            "source of a move-construction).");
+      }
     }
     return false;
   }

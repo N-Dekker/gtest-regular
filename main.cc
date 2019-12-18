@@ -35,9 +35,9 @@
 #include <gtest/gtest.h>
 
 // Standard library header files:
-#include <cstdlib> // For EXIT_SUCCESS and EXIT_FAILURE
-#include <cstring> // For strncmp
-#include <iostream> // For cerr.
+#include <cstdlib>   // For EXIT_SUCCESS and EXIT_FAILURE
+#include <cstring>   // For strncmp
+#include <iostream>  // For cerr.
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
@@ -81,19 +81,21 @@ int main(int argc, char** argv) {
       const testing::TestResult* const test_result = test_info->result();
 
       if ((test_name == nullptr) || (test_result == nullptr)) {
-        std::cerr << "TestInfo name() or result() unexpectedly returned null!\n";
+        std::cerr
+            << "TestInfo name() or result() unexpectedly returned null!\n";
         return EXIT_FAILURE;
       }
 
       const char prefix_of_tests_that_should_fail[] = "Irregular";
       const bool should_test_fail =
           std::strncmp(test_name, prefix_of_tests_that_should_fail,
-                  sizeof(prefix_of_tests_that_should_fail) - 1) == 0;
+                       sizeof(prefix_of_tests_that_should_fail) - 1) == 0;
 
       if (test_result->Failed() != should_test_fail) {
         std::cerr << (should_test_fail
-            ? "A test unexpectedly passed successfully!\n"
-            : "A test unexpecttedly failed!\n");
+                          ? "A test unexpectedly passed successfully: "
+                          : "A test unexpectedly failed: ")
+                  << test_name << '\n';
         return EXIT_FAILURE;
       }
     }

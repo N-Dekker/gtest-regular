@@ -323,7 +323,9 @@ GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
     }
 
     bool operator==(const IrregularType& arg) const {
-      return data_ == arg.data_;
+      // Do not do "data_ == arg.data_", to avoid a warning like "comparing
+      // floating point with == or != is unsafe [-Wfloat-equal]".
+      return (data_ <= arg.data_) && (data_ >= arg.data_);
     }
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 

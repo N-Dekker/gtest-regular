@@ -53,7 +53,7 @@ target_link_libraries(${PROJECT_NAME} gtest)
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror -Wfloat-equal)
 endif()
 
 add_test(NAME hello_gtest_regular_test COMMAND ${PROJECT_NAME})

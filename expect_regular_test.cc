@@ -76,9 +76,7 @@ GTEST_TEST(TestRegular, IrregularEqual) {
     }
   };
 
-  const IrregularType example_value1{0, 0};
-  const IrregularType example_value2{0, 1};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR((IrregularType{0, 0}), (IrregularType{0, 1}));
 }
 
 GTEST_TEST(TestRegular, IrregularUnequal) {
@@ -91,9 +89,7 @@ GTEST_TEST(TestRegular, IrregularUnequal) {
     bool operator!=(const IrregularType& arg) const { return *this == arg; }
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType{1}, IrregularType{2});
 }
 
 GTEST_TEST(TestRegular, IrregularValueInitialization) {
@@ -117,9 +113,7 @@ GTEST_TEST(TestRegular, IrregularValueInitialization) {
   };
 
   int i{};
-  const IrregularType example_value1{nullptr};
-  const IrregularType example_value2{&i};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType{nullptr}, IrregularType{&i});
 }
 
 GTEST_TEST(TestRegular, IrregularCopyConstruction) {
@@ -146,9 +140,7 @@ GTEST_TEST(TestRegular, IrregularCopyConstruction) {
     int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularMoveConstruction) {
@@ -175,9 +167,7 @@ GTEST_TEST(TestRegular, IrregularMoveConstruction) {
     int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularIncompleteCopyAssignment) {
@@ -204,9 +194,7 @@ GTEST_TEST(TestRegular, IrregularIncompleteCopyAssignment) {
     int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularSourceModifyingAssignment) {
@@ -234,9 +222,7 @@ GTEST_TEST(TestRegular, IrregularSourceModifyingAssignment) {
     mutable int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularMoveAssignment) {
@@ -264,9 +250,7 @@ GTEST_TEST(TestRegular, IrregularMoveAssignment) {
     int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularSelfAssignment) {
@@ -296,9 +280,7 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
     int data_{0};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
@@ -333,9 +315,7 @@ GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
     double data_{0.0};
   };
 
-  const IrregularType example_value1{1.0};
-  const IrregularType example_value2{2.0};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1.0), IrregularType(2.0));
 }
 
 GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
@@ -377,9 +357,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     std::shared_ptr<int> data_{std::make_shared<int>()};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
@@ -412,9 +390,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     std::shared_ptr<int> data_{std::make_shared<int>()};
   };
 
-  const IrregularType example_value1{1};
-  const IrregularType example_value2{2};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }
 
 GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
@@ -449,9 +425,8 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
         std::make_shared<std::vector<int>>()};
   };
 
-  const IrregularType example_value1{std::vector<int>(1)};
-  const IrregularType example_value2{std::vector<int>{1, 2, 3}};
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
+                 IrregularType{std::vector<int>({1, 2, 3})});
 }
 
 GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
@@ -488,9 +463,7 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
 
   int i1{1};
   int i2{2};
-  const IrregularType example_value1(i1);
-  const IrregularType example_value2(i2);
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(i1), IrregularType(i2));
 }
 
 GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
@@ -530,7 +503,5 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     std::unique_ptr<int> data_{new int()};
   };
 
-  const IrregularType example_value1(1);
-  const IrregularType example_value2(2);
-  EXPECT_REGULAR(example_value1, example_value2);
+  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
 }

@@ -417,6 +417,43 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
   EXPECT_REGULAR(example_value1, example_value2);
 }
 
+GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
+  class IrregularType {
+   public:
+    IrregularType() = default;
+    IrregularType(const IrregularType&) = default;
+    IrregularType& operator=(const IrregularType&) = default;
+    ~IrregularType() = default;
+    explicit IrregularType(std::vector<int> arg)
+        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
+
+    // Irregularity in user code: The copy member functions (which are
+    // defaulted) share the data (the std::vector<int>), while the move member
+    // functions (implemented below here) do a "deep" move.
+
+    IrregularType(IrregularType&& arg) noexcept
+        : data_{std::make_shared<std::vector<int>>(std::move(*arg.data_))} {}
+
+    IrregularType& operator=(IrregularType&& arg) noexcept {
+      *data_ = std::move(*arg.data_);
+      return *this;
+    }
+
+    bool operator==(const IrregularType& arg) const {
+      return *data_ == *arg.data_;
+    }
+    bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
+
+   private:
+    std::shared_ptr<std::vector<int>> data_{
+        std::make_shared<std::vector<int>>()};
+  };
+
+  const IrregularType example_value1{std::vector<int>(1)};
+  const IrregularType example_value2{std::vector<int>{1, 2, 3}};
+  EXPECT_REGULAR(example_value1, example_value2);
+}
+
 GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
   class IrregularType {
    public:

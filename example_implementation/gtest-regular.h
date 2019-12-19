@@ -110,6 +110,29 @@ class RegularTypeChecker {
   std::pair<Example, Example> examples_;  // Two different examples values of T.
   std::string& message_;
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+
+  // Equal(const T&, const T&) and Unequal(const T&, const T&) are meant to
+  // avoid compile warnings that might occur when using `==` and `!=` directly,
+  // like:
+  // - "self-comparison always evaluates to true [-Wtautological-compare]"
+  // - "comparing floating point with == or != is unsafe [-Wfloat-equal]"
+
+  static bool Equal(const T& left_operand, const T& right_operand) {
+    return left_operand == right_operand;
+  }
+
+  static bool Unequal(const T& left_operand, const T& right_operand) {
+    return left_operand != right_operand;
+  }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
   template <unsigned example_index>
   const Example& GetExample() const {
     return std::get<example_index>(examples_);
@@ -125,7 +148,7 @@ class RegularTypeChecker {
                            const std::string& short_message) const {
     const Example& example = GetExample<example_index>();
 
-    if (value != example.GetValue()) {
+    if (Unequal(value, example.GetValue())) {
       using namespace ::testing;
 
       message_.append(short_message)
@@ -141,7 +164,7 @@ class RegularTypeChecker {
   bool CheckValueInitialization() const {
     const T& value_initialized1 = T();
     const T& value_initialized2 = T();
-    if (value_initialized1 != value_initialized2) {
+    if (Unequal(value_initialized1, value_initialized2)) {
       using namespace ::testing;
       message_
           .append(
@@ -160,14 +183,10 @@ class RegularTypeChecker {
   bool CheckEqualToSelf() const {
     const Example& example = GetExample<example_index>();
 
-    // `if (value == value)` might cause a compile warning ("self-comparison
-    // always evaluates to true [-Wtautological-compare]"), so instead,
-    // use two different references to the same object.
-    const T& left_operand = example.GetValue();
-    const T& right_operand = example.GetValue();
+    const T& value = example.GetValue();
 
-    if (left_operand == right_operand) {
-      if (!(left_operand != right_operand)) {
+    if (Equal(value, value)) {
+      if (!Unequal(value, value)) {
         return true;
       }
       message_.append("Object should not compare unequal to itself!");
@@ -185,10 +204,10 @@ class RegularTypeChecker {
     const T& left_operand = left_example.GetValue();
     const T& right_operand = right_example.GetValue();
 
-    if (left_operand == right_operand) {
+    if (Equal(left_operand, right_operand)) {
       message_.append("The two examples should not compare equal!");
     } else {
-      if (left_operand != right_operand) {
+      if (Unequal(left_operand, right_operand)) {
         return true;
       }
       message_.append("The two examples should compare unequal!");
@@ -264,13 +283,13 @@ class RegularTypeChecker {
     // [-Werror=unused-but-set-variable]
     const auto DoNotUse = [](const T&) {};
 
-    if (source != T()) {
+    if (Unequal(source, T())) {
       T copy_construct_target = source;
       DoNotUse(copy_construct_target);
       copy_construct_target = T();
       DoNotUse(copy_construct_target);
 
-      if (source == T()) {
+      if (Equal(source, T())) {
         message_ +=
             "Assigning T() to a copy-constructed object should not "
             "affect the source of the copy-construction.";
@@ -282,7 +301,7 @@ class RegularTypeChecker {
       assign_target = T();
       DoNotUse(assign_target);
 
-      if (source == T()) {
+      if (Equal(source, T())) {
         message_ +=
             "Assigning T() to a copy-assigned-to object should not "
             "affect the source of the previous assignment.";
@@ -296,7 +315,7 @@ class RegularTypeChecker {
     target = other_source;
     DoNotUse(target);
 
-    if (source == other_source) {
+    if (Equal(source, other_source)) {
       message_ +=
           "Assigning a new value to a copy-constructed-to object should not "
           "affect the source of the copy-construction.";
@@ -322,7 +341,7 @@ class RegularTypeChecker {
             "A self-assigned object must have the same value as before.")) {
       value = std::move(value);
 
-      if (value == value) {
+      if (Equal(value, value)) {
         return true;
       }
       // "A self-move-assigned object must (still) be equal to itself."

@@ -325,10 +325,11 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const int arg) : data_{std::make_shared<int>(arg)} {}
+    explicit IrregularType(std::vector<int> arg)
+        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
 
-    // Potential bug in user code: the assignment operators do a deep copy,
-    // while the defaulted copy-constructor does a shallow copy.
+    // Potential bug in user code: the assignment operators do a deep copy, or a
+    // deep move, while the defaulted copy-constructor does a shallow copy.
 
     IrregularType& operator=(const IrregularType& arg) {
       if ((data_ == nullptr) || (arg.data_ == nullptr)) {
@@ -343,7 +344,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
       if ((data_ == nullptr) || (arg.data_ == nullptr)) {
         data_ = arg.data_;
       } else {
-        *data_ = *arg.data_;
+        *data_ = std::move(*arg.data_);
       }
       return *this;
     }
@@ -354,10 +355,12 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    std::shared_ptr<int> data_{std::make_shared<int>()};
+    std::shared_ptr<std::vector<int>> data_{
+        std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
+                 IrregularType{std::vector<int>({1, 2, 3})});
 }
 
 GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
@@ -367,17 +370,18 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const int arg) : data_{std::make_shared<int>(arg)} {}
+    explicit IrregularType(std::vector<int> arg)
+        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
 
     // Potential bug in user code: copy-constructor and move-assignment do a
-    // deep copy, while the defaulted copy-assignment and move-constructor do
-    // a shallow copy.
+    // deep copy, or a deep move, while the defaulted copy-assignment and
+    // move-constructor do a shallow copy.
 
     IrregularType(const IrregularType& arg)
-        : data_{std::make_shared<int>(*arg.data_)} {}
+        : data_{std::make_shared<std::vector<int>>(*arg.data_)} {}
 
     IrregularType& operator=(IrregularType&& arg) noexcept {
-      *data_ = *arg.data_;
+      *data_ = std::move(*arg.data_);
       return *this;
     }
 
@@ -387,10 +391,12 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    std::shared_ptr<int> data_{std::make_shared<int>()};
+    std::shared_ptr<std::vector<int>> data_{
+        std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
+                 IrregularType{std::vector<int>({1, 2, 3})});
 }
 
 GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {

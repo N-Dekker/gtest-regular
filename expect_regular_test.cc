@@ -105,7 +105,7 @@ GTEST_TEST(TestRegular, IrregularValueInitialization) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const void* arg) : data_{arg} {}
+    explicit IrregularType(const void* const arg) : data_{arg} {}
 
     bool operator==(const IrregularType& arg) const {
       return data_ == arg.data_;
@@ -130,7 +130,7 @@ GTEST_TEST(TestRegular, IrregularCopyConstruction) {
     IrregularType& operator=(IrregularType&&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType(const IrregularType&) {
       // Potential bug in user code: copy-constructor does not copy all (or any)
@@ -159,7 +159,7 @@ GTEST_TEST(TestRegular, IrregularMoveConstruction) {
     IrregularType& operator=(IrregularType&&) = default;
     IrregularType(const IrregularType&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType(IrregularType&&) noexcept {
       // Potential bug in user code: move-constructor does not move all (or any)
@@ -188,7 +188,7 @@ GTEST_TEST(TestRegular, IrregularIncompleteCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(const IrregularType&) {
       // Potential bug in user code: copy-assignment does not copy all (or any)
@@ -217,7 +217,7 @@ GTEST_TEST(TestRegular, IrregularSourceModifyingAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(const IrregularType& arg) {
       // Potential bug in user code: copy-assignment modifies the source object.
@@ -247,7 +247,7 @@ GTEST_TEST(TestRegular, IrregularMoveAssignment) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(IrregularType&&) noexcept {
       // Potential bug in user code: move-assignment does not move all (or any)
@@ -277,7 +277,7 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{arg} {}
+    explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(const IrregularType& arg) {
       // Potential bug in user code: when starting an assignment by resetting
@@ -309,7 +309,7 @@ GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(double arg) : data_{arg} {
+    explicit IrregularType(const double arg) : data_{arg} {
       // Precondition.
       assert(!std::isnan(arg));
     }
@@ -345,7 +345,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{std::make_shared<int>(arg)} {}
+    explicit IrregularType(const int arg) : data_{std::make_shared<int>(arg)} {}
 
     // Potential bug in user code: the assignment operators do a deep copy,
     // while the defaulted copy-constructor does a shallow copy.
@@ -389,7 +389,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int arg) : data_{std::make_shared<int>(arg)} {}
+    explicit IrregularType(const int arg) : data_{std::make_shared<int>(arg)} {}
 
     // Potential bug in user code: copy-constructor and move-assignment do a
     // deep copy, while the defaulted copy-assignment and move-constructor do

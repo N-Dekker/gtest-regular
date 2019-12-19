@@ -48,7 +48,7 @@
 // "testing::internal".
 namespace example_implementation_by_niels_dekker {
 
-// Helper function for implementing EXPECT_REGULAR.
+// Helper class for the implementation of EXPECT_REGULAR and ASSERT_REGULAR.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
 
@@ -107,7 +107,7 @@ class RegularTypeChecker {
   }
 
  private:
-  std::pair<Example, Example> examples_;  // Two different examples values of T.
+  std::pair<Example, Example> examples_;  // Two different example values of T.
   std::string& message_;
 
 #ifdef __GNUC__
@@ -149,8 +149,6 @@ class RegularTypeChecker {
     const Example& example = GetExample<example_index>();
 
     if (Unequal(value, example.GetValue())) {
-      using namespace ::testing;
-
       message_.append(short_message)
           .append("\n    Actual value: ")
           .append(::testing::PrintToString(value))
@@ -263,7 +261,7 @@ class RegularTypeChecker {
               "value.")) {
         T move_assign_target(initial_target_value);
 
-        // Note that T(value) is an rvalue, that can be moved from.
+        // Note that T(source) is an rvalue, that can be moved from.
         move_assign_target = T(source);
 
         return CheckEqualToExample<example_index>(
@@ -330,22 +328,27 @@ class RegularTypeChecker {
     const Example& example = GetExample<example_index>();
 
     T value(example.GetValue());
-    const T& const_ref = value;
+
     // Note that a simple `value = value` statement might cause a compile
     // warning ("explicitly assigning value of variable of type 'T' to itself
     // [-Wself-assign-overloaded]"), which appears avoided by using `const_ref`.
-
+    const T& const_ref = value;
     value = const_ref;
+
     if (CheckEqualToExample<example_index>(
             value,
             "A self-assigned object must have the same value as before.")) {
       value = std::move(value);
 
       if (Equal(value, value)) {
-        return true;
+        value = GetExampleValue<1 - example_index>();
+
+        return CheckEqualToExample<1 - example_index>(
+            value,
+            "When an object is first self-move-assigned and then copy-assigned "
+            "to, its value must compare equal to the source of the "
+            "copy-assignment.");
       }
-      // "A self-move-assigned object must (still) be equal to itself."
-      using namespace ::testing;
       message_
           .append(
               "A self-move-assigned object must (still) be equal to itself.")
@@ -374,8 +377,7 @@ class RegularTypeChecker {
     }
     return false;
   }
-
-};  // namespace example_implementation_by_niels_dekker
+};
 
 template <bool is_failure_fatal, typename T>
 void CheckRegularType(const char* const file, int line, const T& example_value1,
@@ -400,6 +402,8 @@ void CheckRegularType(const char* const file, int line, const T& example_value1,
   }
 }
 
+}  // namespace example_implementation_by_niels_dekker
+
 #define EXPECT_REGULAR(example_value1, example_value2)                     \
   ::example_implementation_by_niels_dekker::CheckRegularType<false>(       \
       __FILE__, __LINE__, example_value1, #example_value1, example_value2, \
@@ -410,6 +414,5 @@ void CheckRegularType(const char* const file, int line, const T& example_value1,
       __FILE__, __LINE__, example_value1, #example_value1, example_value2, \
       #example_value2)
 
-}  // namespace example_implementation_by_niels_dekker
 
 #endif  // GTEST_INCLUDE_GTEST_REGULAR_H_

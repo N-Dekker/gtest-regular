@@ -342,7 +342,13 @@ class RegularTypeChecker {
       value = std::move(value);
 
       if (Equal(value, value)) {
-        return true;
+        value = GetExampleValue<1 - example_index>();
+
+        return CheckEqualToExample<1 - example_index>(
+            value,
+            "When an object is first self-move-assigned and then copy-assigned "
+            "to, its value must compare equal to the source of the "
+            "copy-assignment.");
       }
       // "A self-move-assigned object must (still) be equal to itself."
       using namespace ::testing;

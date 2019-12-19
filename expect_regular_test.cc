@@ -112,7 +112,7 @@ GTEST_TEST(TestRegular, IrregularValueInitialization) {
     const void* data_ = this;
   };
 
-  int i{};
+  const int i{1};
   EXPECT_REGULAR(IrregularType{nullptr}, IrregularType{&i});
 }
 

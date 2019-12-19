@@ -452,7 +452,7 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(int& arg) : data_{&arg} {}
+    explicit IrregularType(std::vector<int>& arg) : data_{&arg} {}
 
     IrregularType& operator=(const IrregularType& arg) {
       if ((data_ == nullptr) || (arg.data_ == nullptr)) {
@@ -473,12 +473,12 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    int* data_{nullptr};
+    std::vector<int>* data_{nullptr};
   };
 
-  int i1{1};
-  int i2{2};
-  EXPECT_REGULAR(IrregularType(i1), IrregularType(i2));
+  std::vector<int> vector1(1);
+  std::vector<int> vector2{1, 2, 3};
+  EXPECT_REGULAR(IrregularType(vector1), IrregularType(vector2));
 }
 
 GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
@@ -488,10 +488,12 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const int arg) : data_{new int(arg)} {}
+    explicit IrregularType(std::vector<int> arg)
+        : data_{new std::vector<int>(std::move(arg))} {}
 
     IrregularType(const IrregularType& arg)
-        : data_((arg.data_ == nullptr) ? nullptr : new int(*arg.data_)) {}
+        : data_((arg.data_ == nullptr) ? nullptr
+                                       : new std::vector<int>(*arg.data_)) {}
 
     IrregularType& operator=(const IrregularType& arg) {
       if (arg.data_ == nullptr) {
@@ -515,8 +517,9 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    std::unique_ptr<int> data_{new int()};
+    std::unique_ptr<std::vector<int>> data_{new std::vector<int>()};
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
+                 IrregularType{std::vector<int>({1, 2, 3})});
 }

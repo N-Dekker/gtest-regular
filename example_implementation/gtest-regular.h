@@ -248,21 +248,21 @@ class RegularTypeChecker {
   template <unsigned example_index>
   bool CheckAssigningDifferentValue() const {
     const T& initial_target_value = GetExampleValue<1 - example_index>();
-    const T source = GetExampleValue<example_index>();
+    const T const_source = GetExampleValue<example_index>();
     T copy_assign_target = initial_target_value;
-    copy_assign_target = source;
+    copy_assign_target = const_source;
     if (CheckEqualToExample<example_index>(
             copy_assign_target,
             "A copy-assigned-to object must have a value equal to the "
             "source object.")) {
       if (CheckEqualToExample<example_index>(
-              source,
+              const_source,
               "The source object of a copy-assignment must preserve its "
               "value.")) {
         T move_assign_target(initial_target_value);
 
-        // Note that T(source) is an rvalue, that can be moved from.
-        move_assign_target = T(source);
+        T non_const_source(const_source);
+        move_assign_target = std::move(non_const_source);
 
         return CheckEqualToExample<example_index>(
             move_assign_target,

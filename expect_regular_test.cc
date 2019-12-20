@@ -261,29 +261,40 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
    public:
     IrregularType() = default;
     IrregularType& operator=(IrregularType&&) = default;
-    IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const int arg) : data_{arg} {}
+    explicit IrregularType(std::vector<int> arg)
+        : data_{new std::vector<int>(std::move(arg))} {}
+
+    IrregularType(const IrregularType& arg)
+        : data_{(arg.data_ == nullptr) ? nullptr
+                                       : new std::vector<int>(*arg.data_)} {}
 
     IrregularType& operator=(const IrregularType& arg) {
       // Potential bug in user code: when starting an assignment by resetting
       // this object, one may forget to support self-assignment correctly.
-      data_ = 0;
-      data_ = arg.data_;
+      data_.reset();
+
+      if (arg.data_ != nullptr) {
+        data_.reset(new std::vector<int>(*arg.data_));
+      }
       return *this;
     }
 
     bool operator==(const IrregularType& arg) const {
-      return data_ == arg.data_;
+      return (data_ == arg.data_) ||
+             ((data_ != nullptr) && (arg.data_ != nullptr) &&
+              (*data_ == *arg.data_));
     }
+
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    int data_{0};
+    std::unique_ptr<std::vector<int>> data_;
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
+                 IrregularType(std::vector<int>{1, 2, 3}));
 }
 
 GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {

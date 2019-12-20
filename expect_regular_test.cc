@@ -368,8 +368,8 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
-                 IrregularType{std::vector<int>({1, 2, 3})});
+  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
+                 IrregularType(std::vector<int>{1, 2, 3}));
 }
 
 GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
@@ -404,8 +404,8 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
-                 IrregularType{std::vector<int>({1, 2, 3})});
+  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
+                 IrregularType(std::vector<int>{1, 2, 3}));
 }
 
 GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
@@ -440,8 +440,8 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
-                 IrregularType{std::vector<int>({1, 2, 3})});
+  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
+                 IrregularType(std::vector<int>{1, 2, 3}));
 }
 
 GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
@@ -520,6 +520,6 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     std::unique_ptr<std::vector<int>> data_{new std::vector<int>()};
   };
 
-  EXPECT_REGULAR(IrregularType{std::vector<int>(1)},
-                 IrregularType{std::vector<int>({1, 2, 3})});
+  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
+                 IrregularType(std::vector<int>{1, 2, 3}));
 }

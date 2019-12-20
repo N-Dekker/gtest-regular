@@ -38,11 +38,9 @@
 #include <gtest/gtest.h>
 
 // Standard library header files:
-#include <chrono>
 #include <climits>  // For INT_MAX.
 #include <cmath>    // For isnan.
 #include <string>
-#include <thread>
 #include <vector>
 
 GTEST_TEST(TestRegular, ExpectIntIsRegular) {
@@ -95,22 +93,15 @@ GTEST_TEST(TestRegular, IrregularUnequal) {
 }
 
 GTEST_TEST(TestRegular, IrregularValueInitialization) {
-  using ClockType = std::chrono::high_resolution_clock;
-  using TimePointType = std::chrono::time_point<ClockType>;
-
   class IrregularType {
    public:
-    IrregularType() : data_{ClockType::now()} {
-      // Ensure that the next value-initialized object will get a slightly
-      // different data_ value than this one, by waiting for a little while.
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    IrregularType() = default;
     IrregularType& operator=(const IrregularType&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(const TimePointType& arg) : data_{arg} {}
+    explicit IrregularType(const unsigned arg) : data_{arg} {}
 
     bool operator==(const IrregularType& arg) const {
       return data_ == arg.data_;
@@ -118,11 +109,14 @@ GTEST_TEST(TestRegular, IrregularValueInitialization) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    TimePointType data_;
+    static unsigned GetNextValue() {
+      static unsigned value{};
+      return ++value;
+    }
+    unsigned data_ = GetNextValue();
   };
 
-  EXPECT_REGULAR(IrregularType(TimePointType(std::chrono::minutes(1))),
-                 IrregularType(TimePointType(std::chrono::minutes(2))));
+  EXPECT_REGULAR(IrregularType(0), IrregularType(UINT_MAX));
 }
 
 GTEST_TEST(TestRegular, IrregularCopyConstruction) {

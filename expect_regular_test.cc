@@ -32,10 +32,10 @@
 // Tests the macro EXPECT_REGULAR(example_value1, example_value2), using
 // GoogleTest.
 
+#include "example_implementation/gtest-regular.h"  // For EXPECT_REGULAR
+
 // GoogleTest header file:
 #include <gtest/gtest.h>
-
-#include "example_implementation/gtest-regular.h"  // For EXPECT_REGULAR
 
 // Standard library header files:
 #include <chrono>
@@ -423,6 +423,7 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
     // functions (implemented below here) do a "deep" move.
 
     IrregularType(IrregularType&& arg) noexcept
+        // Honestly `noexcept` is arguable here, as `make_shared` might throw.
         : data_{std::make_shared<std::vector<int>>(std::move(*arg.data_))} {}
 
     IrregularType& operator=(IrregularType&& arg) noexcept {

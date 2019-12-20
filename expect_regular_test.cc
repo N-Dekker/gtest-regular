@@ -61,6 +61,32 @@ GTEST_TEST(TestRegular, ExpectStdStringIsRegular) {
   EXPECT_REGULAR(example_value1, example_value2);
 }
 
+GTEST_TEST(TestRegular, SupportExplicitConstructors) {
+  class ExplicitlyConstructible {
+   public:
+    explicit ExplicitlyConstructible() = default;
+    explicit ExplicitlyConstructible(const ExplicitlyConstructible&) = default;
+    explicit ExplicitlyConstructible(ExplicitlyConstructible&&) = default;
+    ExplicitlyConstructible& operator=(const ExplicitlyConstructible&) =
+        default;
+    ExplicitlyConstructible& operator=(ExplicitlyConstructible&&) = default;
+    ~ExplicitlyConstructible() = default;
+    explicit ExplicitlyConstructible(const int arg) : data_{arg} {}
+
+    bool operator==(const ExplicitlyConstructible& arg) const {
+      return data_ == arg.data_;
+    }
+    bool operator!=(const ExplicitlyConstructible& arg) const {
+      return !(*this == arg);
+    }
+
+   private:
+    int data_{0};
+  };
+
+  EXPECT_REGULAR(ExplicitlyConstructible(1), ExplicitlyConstructible(2));
+}
+
 GTEST_TEST(TestRegular, IrregularEqual) {
   struct IrregularType {
     int first;

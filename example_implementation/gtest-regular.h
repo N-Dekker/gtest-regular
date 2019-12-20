@@ -221,14 +221,14 @@ class RegularTypeChecker {
   template <unsigned example_index>
   bool CheckCopyAndMoveConstruct() const {
     const T& example_value = GetExampleValue<example_index>();
-    const T copied_value = example_value;
+    const T copied_value(example_value);
 
     if (CheckEqualToExample<example_index>(
             copied_value,
             "A copy-constructed object must have a value equal to the "
             "original.")) {
-      T non_const_lvalue = example_value;
-      const T moved_value = std::move(non_const_lvalue);
+      T non_const_lvalue(example_value);
+      const T moved_value(std::move(non_const_lvalue));
       if (CheckEqualToExample<example_index>(
               moved_value,
               "A move-constructed object must have a value equal to the "
@@ -248,8 +248,8 @@ class RegularTypeChecker {
   template <unsigned example_index>
   bool CheckAssigningDifferentValue() const {
     const T& initial_target_value = GetExampleValue<1 - example_index>();
-    const T const_source = GetExampleValue<example_index>();
-    T copy_assign_target = initial_target_value;
+    const T const_source(GetExampleValue<example_index>());
+    T copy_assign_target(initial_target_value);
     copy_assign_target = const_source;
     if (CheckEqualToExample<example_index>(
             copy_assign_target,
@@ -282,7 +282,7 @@ class RegularTypeChecker {
     const auto DoNotUse = [](const T&) {};
 
     if (Unequal(source, T())) {
-      T copy_construct_target = source;
+      T copy_construct_target(source);
       DoNotUse(copy_construct_target);
       copy_construct_target = T();
       DoNotUse(copy_construct_target);
@@ -306,7 +306,7 @@ class RegularTypeChecker {
         return false;
       }
     }
-    T target = source;
+    T target(source);
     DoNotUse(target);
 
     const T& other_source = GetExampleValue<1 - example_index>();

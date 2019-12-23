@@ -187,7 +187,7 @@ GTEST_TEST(TestRegular, IrregularMoveConstruction) {
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
 
-    explicit IrregularType(const int arg) : data_{arg} {}
+    explicit IrregularType(std::initializer_list<int> arg) : data_(arg) {}
 
     IrregularType(IrregularType&&) noexcept {
       // Potential bug in user code: move-constructor does not move all (or any)
@@ -200,10 +200,10 @@ GTEST_TEST(TestRegular, IrregularMoveConstruction) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    int data_{0};
+    std::vector<int> data_;
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularIncompleteCopyAssignment) {
@@ -273,7 +273,7 @@ GTEST_TEST(TestRegular, IrregularMoveAssignment) {
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
 
-    explicit IrregularType(const int arg) : data_{arg} {}
+    explicit IrregularType(std::initializer_list<int> arg) : data_(arg) {}
 
     IrregularType& operator=(IrregularType&&) noexcept {
       // Potential bug in user code: move-assignment does not move all (or any)
@@ -287,10 +287,10 @@ GTEST_TEST(TestRegular, IrregularMoveAssignment) {
     bool operator!=(const IrregularType& arg) const { return !(*this == arg); }
 
    private:
-    int data_{0};
+    std::vector<int> data_;
   };
 
-  EXPECT_REGULAR(IrregularType(1), IrregularType(2));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularSelfAssignment) {

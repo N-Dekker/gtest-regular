@@ -72,6 +72,7 @@ GTEST_TEST(TestRegular, SupportExplicitConstructors) {
         default;
     ExplicitlyConstructible& operator=(ExplicitlyConstructible&&) = default;
     ~ExplicitlyConstructible() = default;
+
     explicit ExplicitlyConstructible(const int arg) : data_{arg} {}
 
     bool operator==(const ExplicitlyConstructible& arg) const {
@@ -85,7 +86,9 @@ GTEST_TEST(TestRegular, SupportExplicitConstructors) {
     int data_{0};
   };
 
-  EXPECT_REGULAR(ExplicitlyConstructible(1), ExplicitlyConstructible(2));
+  const ExplicitlyConstructible example_value1(1);
+  const ExplicitlyConstructible example_value2(2);
+  EXPECT_REGULAR(example_value1, example_value2);
 }
 
 GTEST_TEST(TestRegular, IrregularEqual) {
@@ -103,7 +106,7 @@ GTEST_TEST(TestRegular, IrregularEqual) {
     }
   };
 
-  EXPECT_REGULAR((IrregularType{0, 0}), (IrregularType{0, 1}));
+  EXPECT_REGULAR((IrregularType{0, 1}), (IrregularType{1, 1}));
 }
 
 GTEST_TEST(TestRegular, IrregularUnequal) {
@@ -123,11 +126,12 @@ GTEST_TEST(TestRegular, IrregularValueInitialization) {
   class IrregularType {
    public:
     IrregularType() = default;
-    IrregularType& operator=(const IrregularType&) = default;
-    IrregularType& operator=(IrregularType&&) = default;
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(const IrregularType&) = default;
+    IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const unsigned arg) : data_{arg} {}
 
     bool operator==(const IrregularType& arg) const {
@@ -150,10 +154,11 @@ GTEST_TEST(TestRegular, IrregularCopyConstruction) {
   class IrregularType {
    public:
     IrregularType() = default;
+    IrregularType(IrregularType&&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     IrregularType& operator=(IrregularType&&) = default;
-    IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType(const IrregularType&) {
@@ -177,10 +182,11 @@ GTEST_TEST(TestRegular, IrregularMoveConstruction) {
   class IrregularType {
    public:
     IrregularType() = default;
+    IrregularType(const IrregularType&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     IrregularType& operator=(IrregularType&&) = default;
-    IrregularType(const IrregularType&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType(IrregularType&&) noexcept {
@@ -208,6 +214,7 @@ GTEST_TEST(TestRegular, IrregularIncompleteCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(const IrregularType&) {
@@ -235,6 +242,7 @@ GTEST_TEST(TestRegular, IrregularSourceModifyingAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(const IrregularType& arg) {
@@ -243,6 +251,7 @@ GTEST_TEST(TestRegular, IrregularSourceModifyingAssignment) {
       arg.data_ = 0;
       return *this;
     }
+
     bool operator==(const IrregularType& arg) const {
       return data_ == arg.data_;
     }
@@ -259,10 +268,11 @@ GTEST_TEST(TestRegular, IrregularMoveAssignment) {
   class IrregularType {
    public:
     IrregularType() = default;
-    IrregularType& operator=(const IrregularType&) = default;
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const int arg) : data_{arg} {}
 
     IrregularType& operator=(IrregularType&&) noexcept {
@@ -287,9 +297,10 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
   class IrregularType {
    public:
     IrregularType() = default;
-    IrregularType& operator=(IrregularType&&) = default;
     IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::initializer_list<int> arg)
         : data_{new std::vector<int>(arg)} {}
 
@@ -327,10 +338,11 @@ GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
   class IrregularType {
    public:
     IrregularType() = default;
-    IrregularType& operator=(const IrregularType&) = default;
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
+    IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(const double arg) : data_{arg} {
       // Precondition.
       assert(!std::isnan(arg));
@@ -365,6 +377,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::initializer_list<int> arg)
         : data_{std::make_shared<std::vector<int>>(arg)} {}
 
@@ -409,6 +422,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::initializer_list<int> arg)
         : data_{std::make_shared<std::vector<int>>(arg)} {}
 
@@ -444,6 +458,7 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
     IrregularType(const IrregularType&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::initializer_list<int> arg)
         : data_{std::make_shared<std::vector<int>>(arg)} {}
 
@@ -481,6 +496,7 @@ GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::vector<int>& arg) : data_{&arg} {}
 
     IrregularType& operator=(const IrregularType& arg) {
@@ -517,6 +533,7 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
+
     explicit IrregularType(std::initializer_list<int> arg)
         : data_{new std::vector<int>(arg)} {}
 

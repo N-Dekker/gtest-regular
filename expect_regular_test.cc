@@ -40,6 +40,7 @@
 // Standard library header files:
 #include <climits>  // For INT_MAX.
 #include <cmath>    // For isnan.
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -289,8 +290,8 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
     IrregularType& operator=(IrregularType&&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(std::vector<int> arg)
-        : data_{new std::vector<int>(std::move(arg))} {}
+    explicit IrregularType(std::initializer_list<int> arg)
+        : data_{new std::vector<int>(arg)} {}
 
     IrregularType(const IrregularType& arg)
         : data_{(arg.data_ == nullptr) ? nullptr
@@ -319,8 +320,7 @@ GTEST_TEST(TestRegular, IrregularSelfAssignment) {
     std::unique_ptr<std::vector<int>> data_;
   };
 
-  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
-                 IrregularType(std::vector<int>{1, 2, 3}));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularSelfMoveAssignment) {
@@ -365,8 +365,8 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
     IrregularType(const IrregularType&) = default;
     IrregularType(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(std::vector<int> arg)
-        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
+    explicit IrregularType(std::initializer_list<int> arg)
+        : data_{std::make_shared<std::vector<int>>(arg)} {}
 
     // Potential bug in user code: the assignment operators do a deep copy, or a
     // deep move, while the defaulted copy-constructor does a shallow copy.
@@ -399,8 +399,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyConstruction) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
-                 IrregularType(std::vector<int>{1, 2, 3}));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
@@ -410,8 +409,8 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(std::vector<int> arg)
-        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
+    explicit IrregularType(std::initializer_list<int> arg)
+        : data_{std::make_shared<std::vector<int>>(arg)} {}
 
     // Potential bug in user code: copy-constructor and move-assignment do a
     // deep copy, or a deep move, while the defaulted copy-assignment and
@@ -435,8 +434,7 @@ GTEST_TEST(TestRegular, IrregularShallowCopyAssignment) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
-                 IrregularType(std::vector<int>{1, 2, 3}));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
@@ -446,8 +444,8 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
     IrregularType(const IrregularType&) = default;
     IrregularType& operator=(const IrregularType&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(std::vector<int> arg)
-        : data_{std::make_shared<std::vector<int>>(std::move(arg))} {}
+    explicit IrregularType(std::initializer_list<int> arg)
+        : data_{std::make_shared<std::vector<int>>(arg)} {}
 
     // Irregularity in user code: The copy member functions (which are
     // defaulted) share the data (the std::vector<int>), while the move member
@@ -472,8 +470,7 @@ GTEST_TEST(TestRegular, IrregularSharedCopyAndDeepMove) {
         std::make_shared<std::vector<int>>()};
   };
 
-  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
-                 IrregularType(std::vector<int>{1, 2, 3}));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }
 
 GTEST_TEST(TestRegular, IrregularReferenceLikeClass) {
@@ -520,8 +517,8 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     IrregularType(IrregularType&&) = default;
     IrregularType& operator=(IrregularType&&) = default;
     ~IrregularType() = default;
-    explicit IrregularType(std::vector<int> arg)
-        : data_{new std::vector<int>(std::move(arg))} {}
+    explicit IrregularType(std::initializer_list<int> arg)
+        : data_{new std::vector<int>(arg)} {}
 
     IrregularType(const IrregularType& arg)
         : data_((arg.data_ == nullptr) ? nullptr
@@ -552,6 +549,5 @@ GTEST_TEST(TestRegular, IrregularUniquePtrWrapper) {
     std::unique_ptr<std::vector<int>> data_{new std::vector<int>()};
   };
 
-  EXPECT_REGULAR(IrregularType(std::vector<int>(1)),
-                 IrregularType(std::vector<int>{1, 2, 3}));
+  EXPECT_REGULAR(IrregularType{1}, IrregularType({0, 1, 2}));
 }

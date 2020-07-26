@@ -1,6 +1,6 @@
 project(hello_gtest_regular)
 
-cmake_minimum_required( VERSION 3.11.4 )
+cmake_minimum_required( VERSION 3.17 )
 
 message(STATUS "[${PROJECT_NAME}] CMAKE_VERSION = ${CMAKE_VERSION}")
 message(STATUS "[${PROJECT_NAME}] CMAKE_GENERATOR = ${CMAKE_GENERATOR}")
